@@ -151,6 +151,33 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
+    public void shouldNotRemoveTaskIfBadId() {
+        Task task = createTask();
+        manager.createTask(task);
+        manager.deleteTaskById(0);
+        assertEquals(List.of(task), manager.getAllTasks());
+    }
+
+    @Test
+    public void shouldNotRemoveEpicIfBadId() {
+        Epic epic = createEpic();
+        manager.createEpic(epic);
+        manager.deleteEpicById(0);
+        assertEquals(List.of(epic), manager.getAllEpics());
+    }
+
+    @Test
+    public void shouldNotRemoveSubtaskIfBadId() {
+        Epic epic = createEpic();
+        manager.createEpic(epic);
+        Subtask subtask = createSubtask(epic);
+        manager.createSubtask(subtask);
+        manager.deleteSubtaskById(0);
+        assertEquals(List.of(subtask), manager.getAllSubtasks());
+        assertEquals(List.of(subtask.getId()), manager.getEpicById(epic.getId()).getSubtaskIds());
+    }
+
+    @Test
     public void shouldReturnEmptyHistory() {
         assertEquals(Collections.EMPTY_LIST, manager.getHistory());
     }

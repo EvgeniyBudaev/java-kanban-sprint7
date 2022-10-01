@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,14 +35,32 @@ class FileBackedTasksManagerTest extends TaskManagerTest<InMemoryTaskManager> {
     }
 
     @Test
-    public void shouldCorrectlyLoadDataFromFile() {
+    public void shouldCorrectlySaveAndLoad() {
         Task task = new Task("Description", "Title", Status.NEW, Instant.now(), 0);
         manager.createTask(task);
         Epic epic = new Epic("Description", "Title", Status.NEW, Instant.now(), 0);
         manager.createEpic(epic);
-        FileBackedTasksManager loadManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
-        loadManager.loadFromFile();
+        FileBackedTasksManager fileManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+        fileManager.loadFromFile();
         assertEquals(List.of(task), manager.getAllTasks());
         assertEquals(List.of(epic), manager.getAllEpics());
+    }
+
+    @Test
+    public void shouldSaveAndLoadEmptyTasksEpicsSubtasks() {
+        FileBackedTasksManager fileManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+        fileManager.save();
+        fileManager.loadFromFile();
+        assertEquals(Collections.EMPTY_LIST, manager.getAllTasks());
+        assertEquals(Collections.EMPTY_LIST, manager.getAllEpics());
+        assertEquals(Collections.EMPTY_LIST, manager.getAllSubtasks());
+    }
+
+    @Test
+    public void shouldSaveAndLoadEmptyHistory() {
+        FileBackedTasksManager fileManager = new FileBackedTasksManager(Managers.getDefaultHistory(), file);
+        fileManager.save();
+        fileManager.loadFromFile();
+        assertEquals(Collections.EMPTY_LIST, manager.getHistory());
     }
 }
